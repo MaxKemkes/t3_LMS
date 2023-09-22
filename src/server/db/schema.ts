@@ -18,7 +18,7 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const mysqlTable = mysqlTableCreator((name) => `t3_project_lang_course_${name}`);
+export const mysqlTable = mysqlTableCreator((name) => `t3_LMS_${name}`);
 
 export const example = mysqlTable(
   "example",

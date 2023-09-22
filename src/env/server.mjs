@@ -8,7 +8,8 @@ export const env = createEnv({
     HOST: z.string().regex(/(\d+.\d+.\d+.\d+)|(localhost)/),
     PORT: z.coerce.number(),
     DATABASE_URL: z.string().url(),
-    
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
   },
   runtimeEnv: process.env,
 });

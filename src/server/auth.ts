@@ -6,8 +6,9 @@ import {
   type NextAuthOptions,
 } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import GoogleProvider from "next-auth/providers/google"
 
-import { env } from "@/env.mjs";
+import { env } from "@/env/server.mjs";
 import { db } from "@/server/db";
 import { mysqlTable } from "@/server/db/schema";
 
@@ -49,10 +50,22 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: DrizzleAdapter(db, mysqlTable),
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
-    }),
+    GoogleProvider({
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
+    })
+    // DiscordProvider({
+    //   clientId: env.DISCORD_CLIENT_ID,
+    //   clientSecret: env.DISCORD_CLIENT_SECRET,
+    // }),
+
     /**
      * ...add more providers here.
      *
