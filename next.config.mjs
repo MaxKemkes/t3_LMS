@@ -8,7 +8,7 @@ await import("./src/env/public.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-
+  // webpack5: true,
   /**
    * If you are using `appDir` then you must comment the below `i18n` config out.
    *

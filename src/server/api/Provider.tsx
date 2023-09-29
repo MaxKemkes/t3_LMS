@@ -13,7 +13,30 @@ const getBaseUrl = () => {
 };
 
 
-export default function Provider({children}:{children:React.ReactNode}){
+export default function TRPCAppRouterProvider({children}:{children:React.ReactNode}){
+    const [queryClient] = useState(() => new QueryClient({}));
+    const [trpcClient] = useState(() =>
+      trpcAPI.createClient({
+        links: [
+          httpBatchLink({
+            url: getBaseUrl() + "/api/trpc",
+          }),
+        ],
+        transformer: SuperJSON,
+      }),
+    );
+
+    return (
+        <trpcAPI.Provider client={trpcClient} queryClient={queryClient}>
+            <QueryClientProvider client={queryClient}>
+                {children}
+            </QueryClientProvider>
+        </trpcAPI.Provider>
+    )
+}
+
+export function TRPCPageRouterProvider
+({children}:{children:React.ReactNode}){
     const [queryClient] = useState(() => new QueryClient({}));
     const [trpcClient] = useState(() =>
       trpcAPI.createClient({

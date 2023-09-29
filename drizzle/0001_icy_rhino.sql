@@ -1,0 +1,1 @@
+ALTER TABLE `t3_LMS_account` ADD `password` varchar(255);

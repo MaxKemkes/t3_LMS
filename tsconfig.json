@@ -41,7 +41,7 @@
     "**/*.cjs",
     "**/*.mjs",
     ".next/types/**/*.ts"
-  ],
+, "tailwind.config.tsasda"  ],
   "exclude": [
     "node_modules"
   ]

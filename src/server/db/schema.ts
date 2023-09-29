@@ -10,6 +10,7 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/mysql-core";
+import { Account } from "next-auth";
 import { type AdapterAccount } from "next-auth/adapters";
 
 /**
@@ -20,25 +21,26 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const mysqlTable = mysqlTableCreator((name) => `t3_LMS_${name}`);
 
-export const example = mysqlTable(
-  "example",
-  {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    name: varchar("name", { length: 256 }),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
-  },
-  (example) => ({
-    nameIndex: uniqueIndex("name_idx").on(example.name),
-  })
-);
+// export const example = mysqlTable(
+//   "example",
+//   {
+//     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
+//     name: varchar("name", { length: 256 }),
+//     createdAt: timestamp("created_at")
+//       .default(sql`CURRENT_TIMESTAMP`)
+//       .notNull(),
+//     updatedAt: timestamp("updatedAt").onUpdateNow(),
+//   },
+//   (example) => ({
+//     nameIndex: uniqueIndex("name_idx").on(example.name),
+//   })
+// );
 
 export const users = mysqlTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  password: varchar("password", { length: 255 }),
   emailVerified: timestamp("emailVerified", {
     mode: "date",
     fsp: 3,
@@ -46,17 +48,18 @@ export const users = mysqlTable("user", {
   image: varchar("image", { length: 255 }),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
+export const usersRelations = relations(users, ({ one, many }) => ({
+  accounts: one(accounts, {fields: [users.id], references: [accounts.userId]}),
+  emailVerificationTokens: many(emailVerificationTokens)
 }));
+
+// type type = Account["type"]
 
 export const accounts = mysqlTable(
   "account",
   {
     userId: varchar("userId", { length: 255 }).notNull(),
-    type: varchar("type", { length: 255 })
-      .$type<AdapterAccount["type"]>()
-      .notNull(),
+    type: varchar("type", { length: 255 }).$type<Account["type"]>().notNull(),
     provider: varchar("provider", { length: 255 }).notNull(),
     providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
     refresh_token: text("refresh_token"),
@@ -70,7 +73,7 @@ export const accounts = mysqlTable(
   (account) => ({
     compoundKey: primaryKey(account.provider, account.providerAccountId),
     userIdIdx: index("userId_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -88,7 +91,7 @@ export const sessions = mysqlTable(
   },
   (session) => ({
     userIdIdx: index("userId_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -104,5 +107,24 @@ export const verificationTokens = mysqlTable(
   },
   (vt) => ({
     compoundKey: primaryKey(vt.identifier, vt.token),
-  })
+  }),
+);
+
+export const emailVerificationTokens = mysqlTable(
+  "emailVerificationTokens",
+  {
+    userId: varchar("userId", { length: 255 }).notNull(),
+    token: varchar("token", { length: 255 }).primaryKey(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+  },
+  (emailToken) => ({
+    userIdIdx: index("userId_idx").on(emailToken.userId),
+  }),
+);
+
+export const emailVerificationRelation = relations(
+  emailVerificationTokens,
+  ({ one }) => ({
+    users: one(users, {fields: [ emailVerificationTokens.userId], references: [ users.id ]}),
+  }),
 );

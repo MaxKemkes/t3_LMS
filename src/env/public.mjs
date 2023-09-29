@@ -5,9 +5,9 @@ import validator from "validator";
 export const env = createEnv({
   clientPrefix: "NEXT_PUBLIC",
   client: {
-    NEXT_PUBLIC_SITE_URL: z.string(),
+    // NEXT_PUBLIC_SITE_URL: z.string(),
   },
   runtimeEnv: {
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    // NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   },
 });
